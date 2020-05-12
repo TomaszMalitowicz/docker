@@ -1,0 +1,10 @@
+
+How to docker on ubuntu.
+
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+
