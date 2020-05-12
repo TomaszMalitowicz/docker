@@ -8,29 +8,29 @@
     gnupg-agent \
     software-properties-common`
 
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+`curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -`
 
-sudo apt-key fingerprint 0EBFCD88
+`sudo apt-key fingerprint 0EBFCD88`
 
-sudo add-apt-repository \
+`sudo add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
    $(lsb_release -cs) \
-   stable"
+   stable"`
 
-   sudo apt update
-   sudo apt upgrade
-   sudo apt-get install docker-ce docker-ce-cli containerd.io
-   sudo docker info
-   sudo docker run hello-world
+   `sudo apt update`
+   `sudo apt upgrade`
+   `sudo apt-get install docker-ce docker-ce-cli containerd.io`
+   `sudo docker info`
+   `sudo docker run hello-world`
 
 
-   docker run ubuntu echo test
+   `docker run ubuntu echo test`
 # ti - terminal interactive
-   docker run -ti ubuntu:14.10 echo "I'm Ubuntu"
-   docker run -ti centos echo "I'm Centos"
-   docker run -ti ubuntu:18.04 echo "I'm Ubuntu 18.04"
-   docker run -ti ubuntu:20.04 echo "I'm Ubuntu 20.04"
-   docker images
+   `docker run -ti ubuntu:14.10 echo "I'm Ubuntu"`
+   `docker run -ti centos echo "I'm Centos"`
+   `docker run -ti ubuntu:18.04 echo "I'm Ubuntu 18.04"`
+   `docker run -ti ubuntu:20.04 echo "I'm Ubuntu 20.04"`
+   `docker images`
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 ubuntu              20.04               1d622ef86b13        2 weeks ago         73.9MB
 ubuntu              latest              1d622ef86b13        2 weeks ago         73.9MB
@@ -41,12 +41,12 @@ ubuntu              14.10               a8a2ba3ce1a3        4 years ago         
 
 
 # docker ps pokzuje tylko aktywne kontenery
- docker ps 
+ `docker ps`
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS 
               NAMES
 # docker ps -a pokazuje wszystkie zbudowane kontenery lacznie z nie aktywnymi
 
-docker ps -a
+`docker ps -a`
 CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                         PORTS               NAMES
 c8031511709f        ubuntu:20.04        "echo 'I'm Ubuntu 20…"   2 minutes ago       Exited (0) 2 minutes ago                           lucid_snyder
 fed605d46f1c        ubuntu:18.04        "echo 'I'm Ubuntu 18…"   4 minutes ago       Exited (0) 4 minutes ago                           strange_curran
@@ -57,25 +57,25 @@ fed605d46f1c        ubuntu:18.04        "echo 'I'm Ubuntu 18…"   4 minutes ago
 
 
 
-docker run -ti ubuntu bash
+`docker run -ti ubuntu bash`
 
-docker run -ti --name Kontener_01 ubuntu echo "Kontener01"
-docker run -ti --name Kontener_02 ubuntu echo "Kontener02"
+`docker run -ti --name Kontener_01 ubuntu echo "Kontener01"`
+`d`ocker run -ti --name Kontener_02 ubuntu echo "Kontener02"`
 
 
-docker start c4fb5b2ef5f9
+`docker start c4fb5b2ef5f9`
 
-docker exec -ti c4fb5b2ef5f9 bash
+`docker exec -ti c4fb5b2ef5f9 bash`
 # wyjscie z takiego kontenera nic nie zmienia by zakoczyc prace konternera trzeba wejsc do niego przy pomoc komendy attache - podlaczamy sie do aktywnego procesu w tym przykladzie bash.
-docker container ls
+`docker container ls`
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 c4fb5b2ef5f9        ubuntu              "bash"              19 minutes ago      Up 3 minutes                            recursing_chatelet
 
-docker attach c4fb5b2ef5f9
+`docker attach c4fb5b2ef5f9`
 root@c4fb5b2ef5f9:/# exit
 exit
 # po wyjsciu kontener konczy swoja prace.
-docker container ls
+`docker container ls`
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 
 
