@@ -192,14 +192,14 @@ sprawdzamy obrazy
 
 `docker images`
 
-REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-<ins>custom_ubuntu_tm    latest              13d1c1c2ee21        36 seconds ago      73.9MB</ins>
-ubuntu              20.04               1d622ef86b13        2 weeks ago         73.9MB
-ubuntu              latest              1d622ef86b13        2 weeks ago         73.9MB
-ubuntu              18.04               c3c304cb4f22        2 weeks ago         64.2MB
-centos              latest              470671670cac        3 months ago        237MB
-hello-world         latest              bf756fb1ae65        4 months ago        13.3kB
-ubuntu              14.10               a8a2ba3ce1a3        4 years ago         194MB
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE  
+<ins>custom_ubuntu_tm    latest              13d1c1c2ee21        36 seconds ago      73.9MB</ins>  
+ubuntu              20.04               1d622ef86b13        2 weeks ago         73.9MB  
+ubuntu              latest              1d622ef86b13        2 weeks ago         73.9MB  
+ubuntu              18.04               c3c304cb4f22        2 weeks ago         64.2MB  
+centos              latest              470671670cac        3 months ago        237MB  
+hello-world         latest              bf756fb1ae65        4 months ago        13.3kB  
+ubuntu              14.10               a8a2ba3ce1a3        4 years ago         194MB  
 
 
 `docker run -ti custom_ubuntu_tm bash`
