@@ -300,3 +300,51 @@ Untagged: ubuntu:20.04
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 
 i mamy puste repo obrazow
+
+
+
+#### Procesy w kontenerze
+
+`docker run --rm centos echo "Jestem przez chwile"`
+
+po wykonaniu polecenie konterner zakonczyl swoja prace flaga --rm usuwa kontener z listy zbodwanych nieaktywnch kontenerow.
+
+
+`docker run -ti --name kontener1 ubuntu /bin/bash`
+
+
+`docker run -d -ti --name donald_trump ubuntu /bin/bash`
+
+flaga -d - detach pozwala uruchomic kontener w tle.
+
+
+jak juz wiesz aby sie podlaczyc do dzialajacego kontener i pierwszego procesu nalezy uzyc komendy docker attach  
+`docker attach donald_trump`  
+
+aby przejsc spowrotem do tla nalezy uzyc skrotu klawiszowego ctrl+p, crtl +q
+
+
+
+#### docker inspect
+
+`docker inspect donald_trump`  
+`docker start donald_trump`  
+`docker inspect donald_trump`  
+
+mozemy porownac informacje wylaczonego i wlaczonego kontenera.  
+
+`docker pull nginx:latest`  
+
+`docker run -ti -d --name WebServer1 nginx:latest /bin/bash`  
+
+`docker inspect WebServer1`  
+
+
+#### zarzadzanie kontenerami
+
+`docker run -ti --name kontener2 ubuntu /bin/bash`  
+
+aktualizujemy kontener insalujemy vima dodajemy folder plik itd. wychodzimy zapominamy co tam robilismy.
+jezeli kontener jest na liscie mozna spradzic co tam sie dzialo poprzez komende docker log nazwa/id kontenera.
+
+`docker logs kontener2`
