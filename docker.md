@@ -321,7 +321,7 @@ flaga -d - detach pozwala uruchomic kontener w tle.
 jak juz wiesz aby sie podlaczyc do dzialajacego kontener i pierwszego procesu nalezy uzyc komendy docker attach  
 `docker attach donald_trump`  
 
-aby przejsc spowrotem do tla nalezy uzyc skrotu klawiszowego ctrl+p, crtl +q
+aby przejsc spowrotem do tla nalezy uzyc skrotu klawiszowego ctrl+p, ctrl+q
 
 
 
@@ -344,7 +344,84 @@ mozemy porownac informacje wylaczonego i wlaczonego kontenera.
 
 `docker run -ti --name kontener2 ubuntu /bin/bash`  
 
-aktualizujemy kontener insalujemy vima dodajemy folder plik itd. wychodzimy zapominamy co tam robilismy.
-jezeli kontener jest na liscie mozna spradzic co tam sie dzialo poprzez komende docker log nazwa/id kontenera.
+aktualizujemy kontener insalujemy vima dodajemy folder plik itd. wychodzimy zapominamy co tam robilismy.  
 
-`docker logs kontener2`
+jezeli kontener jest na liscie mozna spradzic co tam sie dzialo poprzez komende docker log nazwa/id kontenera.  
+
+`docker logs kontener2`  
+
+
+
+`docker run -d --name contener_loop ubuntu bash -c "while true; do echo Donald Trump for President of USA; sleep 1; done"`
+
+docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                       PORTS               NAMES
+ffbdd3b2290a        ubuntu              "bash -c 'while true…"   52 seconds ago      Up 51 seconds                                    contener_loop
+
+`docker logs ffbdd3b2290a`  
+Donald Trump for President of USA  
+Donald Trump for President of USA  
+Donald Trump for President of USA  
+Donald Trump for President of USA  
+
+`docker logs ffbdd3b2290a | wc -l`  
+104
+
+zabijamy kontener z nieskonczona petla:  
+
+`docker container kill ffbdd3b2290a`  
+
+
+#### Network
+- Kontenery moga sie komunikowac miedzy soba.  
+- Kontener moze sie komunikowac sam ze soba poprzez siec.
+- Kontener moze sie komunikowac tez z hostem.
+- Host moze komunikowac sie z kontenerem.
+
+`docker run -ti --name WebServerNet ubuntu bash`  
+`apt update` - bez update'u nie zaisnstalujemy zadnje paczki  
+`apt install apache2`  
+`apt install lsof`
+`/etc/init.d/apache2 restart` - restartujemy apacha
+`lsof -i -P -n`
+COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+apache2 3670 root    3u  IPv4 109706      0t0  TCP *:80 (LISTEN)
+
+`apt install elinks`
+
+elinks http://localhost
+
+zostawiamy kontener w tle ctrl+p, ctrl+q
+
+`sudo iptables -S`  
+...
+-A FORWARD -j DOCKER-USER
+-A FORWARD -j DOCKER-ISOLATION-STAGE-1
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -o docker0 -j DOCKER
+...
+
+sprawdzamy interfejsy sieciowe:
+`ifconfig -a`  
+docker0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255
+
+
+wracamy do kontenera:
+`docker attach cabc8930823b`
+`apt install openssh-server -y`
+`/etc/init.d/ssh restart`
+
+`lsof -i -P -n`
+COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+sshd    1285 root    3u  IPv4 117179      0t0  TCP *:22 (LISTEN)
+sshd    1285 root    4u  IPv6 117181      0t0  TCP *:22 (LISTEN)
+apache2 1312 root    3u  IPv4 117234      0t0  TCP *:80 (LISTEN)
+
+
+`adduser user`
+wrzucamy kontener w tlo ctrl+p crtl+q
+
+laczymy sie z naszej maszyny poprzez ssh i utowrzonego user do kontenera.
+
+ssh user@172.17.0.2
