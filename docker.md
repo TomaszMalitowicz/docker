@@ -372,7 +372,7 @@ zabijamy kontener z nieskonczona petla:
 `docker container kill ffbdd3b2290a`  
 
 
-#### Network
+#### Siec
 - Kontenery moga sie komunikowac miedzy soba.  
 - Kontener moze sie komunikowac sam ze soba poprzez siec.
 - Kontener moze sie komunikowac tez z hostem.
@@ -425,3 +425,44 @@ wrzucamy kontener w tlo ctrl+p crtl+q
 laczymy sie z naszej maszyny poprzez ssh i utowrzonego user do kontenera.
 
 ssh user@172.17.0.2
+
+
+##### Porty   
+`docker run -d -ti --name WebServer4 httpd`  
+
+`docker ps`
+CONTAINER ID        IMAGE               COMMAND              CREATED             STATUS              PORTS               NAMES
+cb5607dce3d4        httpd               "httpd-foreground"   3 minutes ago       Up 3 minutes        80/tcp              WebServer4
+
+
+parametr -P - wykonuje ekspozycje konkretnych portow uzytych przez dockera. Parametr wybierze pierwszy wolny port z duzego zakresu nie wchodzacy w dzialajace uslugi.
+
+`docker run -d -ti --name WebServer5 -P  httpd`  
+
+`docker ps`  
+CONTAINER ID        IMAGE               COMMAND              CREATED             STATUS              PORTS                   NAMES
+bf5328bd3430        httpd               "httpd-foreground"   5 minutes ago       Up 5 minutes        0.0.0.0:32768->80/tcp   WebServer5
+cb5607dce3d4        httpd               "httpd-foreground"   13 minutes ago      Up 13 minutes       80/tcp                  WebServer4
+
+
+`elinks http://172.17.0.3:80`  
+`elinks http://localhost:32768`  
+
+jak wyeksponowac konkretny port uzywamy paramertu -p pierwszy port to port na serwerze gospodarza port po : to port kontenera. np 8080:80
+
+`docker run -d -ti --name WebServer6 -p 8080:80 httpd`
+
+`docker ps`  
+CONTAINER ID        IMAGE               COMMAND              CREATED             STATUS              PORTS                   NAMES
+dc264291efe7        httpd               "httpd-foreground"   2 minutes ago       Up 2 minutes        0.0.0.0:8080->80/tcp    WebServer6
+bf5328bd3430        httpd               "httpd-foreground"   24 minutes ago      Up 23 minutes       0.0.0.0:32768->80/tcp   WebServer5
+cb5607dce3d4        httpd               "httpd-foreground"   32 minutes ago      Up 32 minutes       80/tcp                  WebServer4
+
+
+sprawdzamy czy dziala przy uzyciu elinksa
+`elinks http://localhost:8080`
+
+
+
+##### Linkowanie kontenerow i flaga --net
+
