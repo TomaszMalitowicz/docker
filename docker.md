@@ -733,3 +733,86 @@ c62f77001584        siec                bridge              local
 sprzatamy nasze maszyny:  
 `docker container stop $(docker container ls)`  
 `docker container rm $(docker container ls -aq)`  
+
+
+##### Tworzenie sieci dockerowej ze statycznymi adresami ip dla kontenerow
+
+tworzymy nowa siec dockerowa:
+`docker network create --subnet 10.10.0.0/16 --gateway 10.10.0.1 --ip-range=10.10.5.0/24 --driver=bridge custome_network_bridge_5`
+```
+docker network ls
+NETWORK ID          NAME                       DRIVER              SCOPE
+06135934ba19        bridge                     bridge              local
+c973ef41f7bb        custome_network_bridge_5   bridge              local
+9e4d6aa5a06d        host                       host                local
+cf8957df087b        none                       null                local
+```
+utworzyl sie rowniez interfejs sieciowy na maszynie glownej.
+```
+ifconfig -a
+br-c973ef41f7bb: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        inet 10.10.0.1  netmask 255.255.0.0  broadcast 10.10.255.255
+        ether 02:42:5e:f5:a0:2f  txqueuelen 0  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+```
+tworzymy kontener i podlaczamy go do sieci:  
+`docker run -ti -d --network=custome_network_bridge_5 ubuntu bash`  
+
+```
+docker container ls
+CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
+62744c64606c        ubuntu              "bash"              About a minute ago   Up About a minute                       festive_dhawan
+docker inspect festive_dhawan| grep IPAddr
+            "SecondaryIPAddresses": null,
+            "IPAddress": "",
+                    "IPAddress": "10.10.5.0",
+```
+tworzymy nowy kontener:  
+`docker run -ti -d --network=custome_network_bridge_5 ubuntu bash`
+
+```
+docker container ls
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+8e51440946d8        ubuntu              "bash"              7 seconds ago       Up 5 seconds                            brave_saha
+62744c64606c        ubuntu              "bash"              2 minutes ago       Up 2 minutes                            festive_dhawan
+```
+```
+docker inspect brave_saha| grep IPAddr
+            "SecondaryIPAddresses": null,
+            "IPAddress": "",
+                    "IPAddress": "10.10.5.1",
+```
+Jak widac adresy ip sa przydzielana zgodnie z polityka sieci.  
+
+mozna nadawac adresy ip przy tworzeniu kontenera fla --ip:  
+`docker run -ti -d --network=custome_network_bridge_5 --ip 10.10.3.1  ubuntu bash`  
+```
+docker inspect silly_lamport| grep IPAddr
+            "SecondaryIPAddresses": null,
+            "IPAddress": "",
+                    "IPAddress": "10.10.3.1",
+
+```
+
+#### Wolumeny danych.
+tworzymy nowy kontener i mapujemy obenca siezke na glownej maszynie na folder mapped w kontenerze
+`docker run -ti -d --name NewContainer1 -v "$PWD":/mapped ubuntu /bin/bash`
+
+```
+docker container ls
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+119c2504a0cd        ubuntu              "/bin/bash"         10 seconds ago      Up 9 seconds                            NewContainer1
+```
+```
+docker attach NewContainer1 
+root@119c2504a0cd:/# ls
+bin  boot  dev  etc  home  lib  lib32  lib64  libx32  mapped  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@119c2504a0cd:/# ls mapped/
+Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos  examples.desktop
+
+```
+
+jak widac katalog sie podmontowal :)
