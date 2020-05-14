@@ -816,3 +816,153 @@ Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos  examp
 ```
 
 jak widac katalog sie podmontowal :)
+
+##### wolumeny ephemeral
+
+`docker run -ti --name V1 -v /sharedata ubuntu bash`  
+`touch ./sharedata/data.txt && echo "very important file." >> ./sharedata/data.txt`  
+`cat sharedata/data.txt`  
+ very important file.  
+
+ wrzucamy konterner w tlo ctrl+p ctrl+q
+
+ `docker run -ti --name V2 --volumes-from V1 ubuntu bash`
+
+```
+root@969cb8656ba7:/# cat sharedata/data.txt 
+very important file.
+root@969cb8656ba7:/# echo "Dont delete it" >> sharedata/data.txt 
+```
+Sprawdzamy czy widac dodany tekst na pierwszym konenerze po czym zamykamy go.
+```
+docker attach V1 
+root@e955e4e08b2a:/# cat sharedata/data.txt 
+very important file.
+Dont delete it
+root@e955e4e08b2a:/# exit
+exit
+```
+
+tworzymy klejny kontener ktory ma korzystac z volumenu kontenera V1
+
+`docker run -ti --name V3 --volumes-from V1 ubuntu bash`
+
+```
+oot@bf5f2a926f9e:/# ls
+bin  boot  dev  etc  home  lib  lib32  lib64  libx32  media  mnt  opt  proc  root  run  sbin  sharedata  srv  sys  tmp  usr  var
+root@bf5f2a926f9e:/# echo "ok.." >> sharedata/data.txt 
+root@bf5f2a926f9e:/# cat sharedata/data.txt 
+very important file.
+Dont delete it
+ok..
+root@bf5f2a926f9e:/# exit
+exit
+```
+wychodzimy z niego i podlaczamy sie do V2
+```
+docker attach V2
+root@969cb8656ba7:/# cat sharedata/data.txt 
+very important file.
+Dont delete it
+ok..
+```
+Jak widac nasze dane pomimo wylaczenia V1 dalej sa wspoldzielone. a jakby go usunac ?
+
+`docker container rm V1`
+
+
+laczymy sie znowy do V2
+```
+docker attach V2
+root@969cb8656ba7:/# cat sharedata/data.txt 
+very important file.
+Dont delete it
+ok..
+```
+Dane dalej sa wspoldzielone. 
+Dane ktore zostaly we wspoldzielonych kontenerach dalej beda dostepne do momentu zatrzymania kontenerow. 
+Gdy usuniemy kontener ze wspoldzielonym zasobem:
+Nie stworzymy juz nowego kontenera na bazie volumenu z V1.
+Kontenery ktore wspoldziela zasob beda go posiadaly do momentu wylaczenia.
+Po wylaczeniu nie beda mialy skad juz zaciaganc danych.
+
+##### wolumeny persistent
+ na przykladzie serwera www apache.
+
+ na maszynie glownej tworzymy katalgo www, w srodku towrzymy dwa pliki html.index oraz newHtml.index wypelniamy roznymi danymi.
+
+ tworzymy kontener z obrazu httpd z wyeksponowanym portem 80 oraz podmontowanym volumenem z maszyny golownej.
+
+ `docker run -tid --name WebServer00 -p 8080:80 -v "$PWD":/usr/local/apache2/htdocs/ httpd`
+
+ sprawdzamy w przegladarce 
+ http://localhost:8080/index.html
+ http://localhost:8080/newIndex.html
+
+
+
+ ##### docker cp
+
+`docker run -itd --name copyServer ubuntu bash`
+tworzymy plik do kopiowania.
+`mkdir testData && touch ./testData/importantFile.txt && echo "very important file dont delete it." >> ./testData/importantFile.txt`
+
+jak wykonac kopie do kontenera. docker cp sciezka_nazwa_pliku nazwa/id kontenera:sciezka_nazwa_nowego_pliku
+`docker cp ./testData/importantFile.txt  copyServer:/plik.txt`
+
+```
+docker attach copyServer 
+root@8cf697ceff13:/# ls
+bin  boot  dev  etc  home  lib  lib32  lib64  libx32  media  mnt  opt  plik.txt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@8cf697ceff13:/# cat plik.txt 
+very important file dont delete it.
+```
+
+kopiowanie z kontenera do maszyny glownej.  
+` docker cp copyServer:/plik.txt ./file_important.txt`  
+
+
+##### docker volume
+
+`docker volume create vol-01`  
+
+`cd /var/lib/docker/volumes/`
+```
+/var/lib/docker/volumes# ll
+total 40
+drwx------  4 root root  4096 maj 14 18:40 ./
+drwx--x--x 14 root root  4096 maj 14 10:54 ../
+drwxr-xr-x  3 root root  4096 maj 14 16:09 8d8e12ca3f1555ee5551e9dd24500ad291725936329f4107e0461ce599fb837d/
+-rw-------  1 root root 32768 maj 14 18:40 metadata.db
+drwxr-xr-x  3 root root  4096 maj 14 18:40 vol-01/
+```
+
+`docker run -ti -d --name TestVolumeContainer --mount source=vol-01,target=/dane ubuntu bash`
+w kontnerze
+`touch /dane.noweDane.txt`
+```
+root@91e063d4b81e:/dane# ls
+noweDane.txt
+```
+wrzucamy kontener w tlo.
+wyswietlamy zawartosc volumenu na dysku maszyny glownej.
+`sudo ls /var/lib/docker/volumes/vol-01/_data`
+noweDane.txt
+
+```
+docker volume inspect vol-01
+[
+    {
+        "CreatedAt": "2020-05-14T19:57:03+02:00",
+        "Driver": "local",
+        "Labels": {},
+        "Mountpoint": "/var/lib/docker/volumes/vol-01/_data",
+        "Name": "vol-01",
+        "Options": {},
+        "Scope": "local"
+    }
+]
+```
+
+nie uzywane wolumeny mozna usunac poleceniem:
+`docker volume prune`
