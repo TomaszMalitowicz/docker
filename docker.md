@@ -465,4 +465,271 @@ sprawdzamy czy dziala przy uzyciu elinksa
 
 
 ##### Linkowanie kontenerow i flaga --net
+stopujemy poprzednie kontenery:
+`docker container stop $(docker container ls)`
+usuwamy wszystkie nieaktywne kontenery:
+`docker container rm $(docker container ls -aq)`
 
+
+tworzymy dwa nowe kontenery w osobnych terminalach  
+`docker run -ti --name server1 ubuntu /bin/bash`  
+
+tworzymy drugi server klincki i linujemy go do pierwszego servera.  
+`docker run -ti --name client --link server1 ubuntu /bin/bash`  
+
+
+updateujemy i instalujemy netcat  
+`apt update && apt install netcat -y`  
+
+
+uruchamiamy netcata z nasuchiwaniem na konkretny port:
+`nc -lp 3456`
+
+na serwerze clienckim uruchamiamy netcata z opcja komunikacji do servera1 na porcie 3456
+`nc server1 3456`
+Mozna wysylac proste komunikatu z serwera client do server1.
+```
+root@5ceab7987928:/# nc server1 3456
+Elo
+Tutaj Donald Trump
+```
+```
+root@95d2598052fb:/# nc -lp 3456
+Elo
+Tutaj Donald Trump
+```
+
+```
+ cat /etc/hosts 
+127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+fe00::0	ip6-localnet
+ff00::0	ip6-mcastprefix
+ff02::1	ip6-allnodes
+ff02::2	ip6-allrouters
+172.17.0.2	server1 95d2598052fb
+172.17.0.3	5ceab7987928
+```
+
+##### Tworzenie wlasnej sieci
+dzieki wlasnej siecie kontenery widza sie wzajemnie nie trzeba ich linkowac.
+
+tworzymy siec:  
+`docker network create siec`  
+tworzymy nowy kontener serwerowy dolaczony do dedykowanje sieci:  
+`docker run -ti --net=siec --name server2 ubuntu /bin/bash`  
+tworzymy nowy kontener kliencji dolaczony do dedykowanej sieci:
+`docker run -ti --name client2 --net=siec ubuntu /bin/bash`  
+update i isnatlujemy netcat  
+`apt update && apt install netcat -y`  
+uruchamiamy nowy nasluchiwanie i przesylanie jak wczesniej.  
+weryfikujemy czy dziala:
+
+
+```
+root@b9cbdaf2d3a7:/# nc server2 2345
+HALO
+```
+```
+root@60f244603df1:/# nc -lp 2345
+HALO
+```
+
+##### Polecenia sieciowe docker'a  
+wyswietlenie dostepnych sieci dockerowych  
+`docker network ls`  
+```
+NETWORK ID          NAME                DRIVER              SCOPE
+06135934ba19        bridge              bridge              local
+9e4d6aa5a06d        host                host                local
+cf8957df087b        none                null                local
+c62f77001584        siec                bridge              local
+```
+
+`docker network inspect siec`
+```
+[
+    {
+        "Name": "siec",
+        "Id": "c62f770015845aec23855bfcebdc49fb5513ee9f82d4c8bdaab496c04bbfddc7",
+        "Created": "2020-05-14T13:38:53.142023378+02:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
+```
+
+dobra sprzatamy poprzednie kontenery:  
+`docker container rm $(docker container ls -aq)`  
+startujemy 5 kontenerow uzywajac petli for:  
+`for count_id in {1..5}; do docker run -ti -d ubuntu bash; done`
+
+`docker container ls`  
+```
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+03508e1f7a89        ubuntu              "bash"              29 seconds ago      Up 28 seconds                           confident_shamir
+9d4c4d925fdd        ubuntu              "bash"              30 seconds ago      Up 29 seconds                           distracted_elion
+3b5b3aec937a        ubuntu              "bash"              32 seconds ago      Up 30 seconds                           awesome_nash
+ea19441273ee        ubuntu              "bash"              33 seconds ago      Up 32 seconds                           hopeful_hellman
+0febf5c1a274        ubuntu              "bash"              34 seconds ago      Up 33 seconds                           goofy_hamilton
+```
+
+wszystkie kontenery zostaly przypisane do sieci bridge  
+`docker network inspect bridge`  
+utworzmy kolejne kontenry z podlaczenie do sieci: siec  
+`for count_id in {1..5}; do docker run -ti -d --net siec ubuntu /bin/bash; done`
+zostaly dolaczone do sieci.  
+`docker network inspect siec`  
+```
+[
+    {
+        "Name": "siec",
+        "Id": "c62f770015845aec23855bfcebdc49fb5513ee9f82d4c8bdaab496c04bbfddc7",
+        "Created": "2020-05-14T13:38:53.142023378+02:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "3bb4461ee4c288cdf7fa6708479e13e357f1647810d43893b441551816158cd2": {
+                "Name": "musing_pasteur",
+                "EndpointID": "0a03fe55bf2ce266e752a2ed14a731bdf187f8c0e342a05a56bac71a69763209",
+                "MacAddress": "02:42:ac:12:00:04",
+                "IPv4Address": "172.18.0.4/16",
+                "IPv6Address": ""
+            },
+            "58592c66331dc6224a3ed0e756ab569cb28622199bd806036628736c9d2da1b1": {
+                "Name": "reverent_bartik",
+                "EndpointID": "6d4d2b061a3022459bdc8e23e9942820a3d47da4e995e11608874c579bafcfdf",
+                "MacAddress": "02:42:ac:12:00:03",
+                "IPv4Address": "172.18.0.3/16",
+                "IPv6Address": ""
+            },
+            "97d29a24ed3c77f74c922879401a725d2b2b4b6cd4ee5706cf4cad623e650773": {
+                "Name": "great_shockley",
+                "EndpointID": "d3183c97f0fd8c4c1837a300fa5f18d8d1b22d6b4fc19c9495a2fed9d0a1c42c",
+                "MacAddress": "02:42:ac:12:00:06",
+                "IPv4Address": "172.18.0.6/16",
+                "IPv6Address": ""
+            },
+            "d3ec006db8bf92d9bd612304ec9118b9704b299bc50e9cdf50555d428973875e": {
+                "Name": "amazing_franklin",
+                "EndpointID": "9a959dd7f72c096e613a9c1340477c321d62692d86145ec4e92fe964380526da",
+                "MacAddress": "02:42:ac:12:00:02",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            },
+            "e00d769d7f92350edec28d4868ebaf953501f55c191553924d65d4a36dfa5856": {
+                "Name": "magical_chatelet",
+                "EndpointID": "a0800a7ebe45a3bd26900fab5450a117104c6876da2476a274639af5b72492a0",
+                "MacAddress": "02:42:ac:12:00:05",
+                "IPv4Address": "172.18.0.5/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
+```
+
+##### Tworzenie wlasnej podsieci dockerowej.
+
+`docker network create --subnet 10.10.0.0/24 --gateway 10.10.0.1 custom_net`
+
+`docker network ls`  
+```
+NETWORK ID          NAME                DRIVER              SCOPE
+06135934ba19        bridge              bridge              local
+5ebc03f7504c        custom_net          bridge              local
+9e4d6aa5a06d        host                host                local
+cf8957df087b        none                null                local
+c62f77001584        siec                bridge              local
+```
+
+`docker network inspect custom_net`  
+```
+[
+    {
+        "Name": "custom_net",
+        "Id": "5ebc03f7504c68356be4531fe9dc6ed0999510ff186fbedaa1f92525fbc540ef",
+        "Created": "2020-05-14T14:18:28.034684758+02:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "10.10.0.0/24",
+                    "Gateway": "10.10.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
+```
+
+##### Usuwanie sieci dockerowej
+`docker network rm custom_net`  
+
+`docker network ls`  
+```
+NETWORK ID          NAME                DRIVER              SCOPE
+06135934ba19        bridge              bridge              local
+9e4d6aa5a06d        host                host                local
+cf8957df087b        none                null                local
+c62f77001584        siec                bridge              local
+```
+
+sprzatamy nasze maszyny:  
+`docker container stop $(docker container ls)`  
+`docker container rm $(docker container ls -aq)`  
