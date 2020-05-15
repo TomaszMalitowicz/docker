@@ -90,7 +90,6 @@ root@f9dc4b6807e0:/# exit
 exit
 
 `docker start ubuntu_test01`  
-
 `docker exec -ti ubuntu_test01 bash`  
 
 #### stworzony plik dalej istnieje
@@ -252,9 +251,9 @@ Untagged: ubuntu:20.04
 ...
 
 `docker images`  
-
+```
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-
+```
 i mamy puste repo obrazow
 
 
@@ -290,9 +289,7 @@ aby przejsc spowrotem do tla nalezy uzyc skrotu klawiszowego ctrl+p, ctrl+q
 mozemy porownac informacje wylaczonego i wlaczonego kontenera.  
 
 `docker pull nginx:latest`  
-
 `docker run -ti -d --name WebServer1 nginx:latest /bin/bash`  
-
 `docker inspect WebServer1`  
 
 
@@ -306,8 +303,6 @@ jezeli kontener jest na liscie mozna spradzic co tam sie dzialo poprzez komende 
 
 `docker logs kontener2`  
 
-
-
 `docker run -d --name contener_loop ubuntu bash -c "while true; do echo Donald Trump for President of USA; sleep 1; done"`  
 
 docker ps -a
@@ -315,10 +310,12 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 ffbdd3b2290a        ubuntu              "bash -c 'while true…"   52 seconds ago      Up 51 seconds                                    contener_loop
 
 `docker logs ffbdd3b2290a`  
+```
 Donald Trump for President of USA  
 Donald Trump for President of USA  
 Donald Trump for President of USA  
 Donald Trump for President of USA  
+```
 
 `docker logs ffbdd3b2290a | wc -l`  
 104
@@ -350,12 +347,14 @@ elinks http://localhost
 zostawiamy kontener w tle ctrl+p, ctrl+q
 
 `sudo iptables -S`  
+```
 ...
 -A FORWARD -j DOCKER-USER
 -A FORWARD -j DOCKER-ISOLATION-STAGE-1
 -A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 -A FORWARD -o docker0 -j DOCKER
 ...
+```
 
 sprawdzamy interfejsy sieciowe:
 `ifconfig -a`  
@@ -369,11 +368,12 @@ wracamy do kontenera:
 `/etc/init.d/ssh restart`  
 
 `lsof -i -P -n`  
+```
 COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
 sshd    1285 root    3u  IPv4 117179      0t0  TCP *:22 (LISTEN)
 sshd    1285 root    4u  IPv6 117181      0t0  TCP *:22 (LISTEN)
 apache2 1312 root    3u  IPv4 117234      0t0  TCP *:80 (LISTEN)
-
+```
 
 `adduser user`  
 wrzucamy kontener w tlo ctrl+p crtl+q
@@ -387,19 +387,21 @@ ssh user@172.17.0.2
 `docker run -d -ti --name WebServer4 httpd`  
 
 `docker ps`
+```
 CONTAINER ID        IMAGE               COMMAND              CREATED             STATUS              PORTS               NAMES
 cb5607dce3d4        httpd               "httpd-foreground"   3 minutes ago       Up 3 minutes        80/tcp              WebServer4
-
+```
 
 parametr -P - wykonuje ekspozycje konkretnych portow uzytych przez dockera. Parametr wybierze pierwszy wolny port z duzego zakresu nie wchodzacy w dzialajace uslugi.
 
 `docker run -d -ti --name WebServer5 -P  httpd`  
 
 `docker ps`  
+```
 CONTAINER ID        IMAGE               COMMAND              CREATED             STATUS              PORTS                   NAMES
 bf5328bd3430        httpd               "httpd-foreground"   5 minutes ago       Up 5 minutes        0.0.0.0:32768->80/tcp   WebServer5
 cb5607dce3d4        httpd               "httpd-foreground"   13 minutes ago      Up 13 minutes       80/tcp                  WebServer4
-
+```
 
 `elinks http://172.17.0.3:80`  
 `elinks http://localhost:32768`  
@@ -409,23 +411,21 @@ jak wyeksponowac konkretny port uzywamy paramertu -p pierwszy port to port na se
 `docker run -d -ti --name WebServer6 -p 8080:80 httpd`  
 
 `docker ps`  
+```
 CONTAINER ID        IMAGE               COMMAND              CREATED             STATUS              PORTS                   NAMES
 dc264291efe7        httpd               "httpd-foreground"   2 minutes ago       Up 2 minutes        0.0.0.0:8080->80/tcp    WebServer6
 bf5328bd3430        httpd               "httpd-foreground"   24 minutes ago      Up 23 minutes       0.0.0.0:32768->80/tcp   WebServer5
 cb5607dce3d4        httpd               "httpd-foreground"   32 minutes ago      Up 32 minutes       80/tcp                  WebServer4
-
+```
 
 sprawdzamy czy dziala przy uzyciu elinksa
 `elinks http://localhost:8080`  
-
-
 
 ##### Linkowanie kontenerow i flaga --net
 stopujemy poprzednie kontenery:
 `docker container stop $(docker container ls)`  
 usuwamy wszystkie nieaktywne kontenery:
 `docker container rm $(docker container ls -aq)`  
-
 
 tworzymy dwa nowe kontenery w osobnych terminalach  
 `docker run -ti --name server1 ubuntu /bin/bash`  
@@ -449,6 +449,7 @@ root@5ceab7987928:/# nc server1 3456
 Elo
 Tutaj Donald Trump
 ```
+
 ```
 root@95d2598052fb:/# nc -lp 3456
 Elo
@@ -1011,5 +1012,37 @@ jak widac rozmiar zmniejszyl sie o 1 MB :)
 
 ##### dockerfile user
 
-dodajemy doi
+dodajemy do docker file linie user:
+```
+# Dockerfile
+FROM ubuntu:latest
+MAINTAINER Your Name <your_mail@gmail.com>
+LABEL maintainer="Your_name <your_mail@gmail.com>"
+RUN apt-get update -y && apt-get upgrade -y && apt-get install vim -y
+RUN useradd -ms /bin/bash dockerman
+USER dockerman
 
+```
+
+budujemy obaz
+`docker build -t image/from/dockerfile/dockerman .`
+
+uruchamiamy go:
+`docker run -tid --name FromDockerFileDockerman image/from/dockerfile/dockerman bash`
+
+podlaczmy sie:
+`docker attach FromDockerFileDockerman`
+```
+dockerman@2a1a93a86212:/$ pwd
+/
+dockerman@2a1a93a86212:/$ cd 
+dockerman@2a1a93a86212:~$ pwd
+/home/dockerman
+dockerman@2a1a93a86212:~$ id
+uid=1000(dockerman) gid=1000(dockerman) groups=1000(dockerman)
+
+```
+
+ENV -  pozwala ustawic zmienne srodowiskowe widoczne w kontenerze.
+EXPOSE - pozwala wyeksponowac port ktory dziala w dockerze i przypisanie go do portu na glownej maszynie.
+CMD - polecenie cmd pozwala na uruchomienie polecenia w czasie budowy kontenera.
