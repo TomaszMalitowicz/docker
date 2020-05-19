@@ -135,28 +135,29 @@ usuwanie z zagniezdzeniem polecenia
 ### tworzenie obrazu z kontenera
 
 `docker run -ti ubuntu bash`  
-root@2ab9b4e4a17c:/# touch image_info.txt
-root@2ab9b4e4a17c:/# echo "Customizowany obraz ubuntu od TM" >> image_info.txt 
-root@2ab9b4e4a17c:/# cat image_info.txt 
-Customizowany obraz ubuntu od TM
+root@2ab9b4e4a17c:/# touch image_info.txt  
+root@2ab9b4e4a17c:/# echo "Customizowany obraz ubuntu od TM" >> image_info.txt   
+root@2ab9b4e4a17c:/# cat image_info.txt   
+Customizowany obraz ubuntu od TM  
 
 
-docker ps -l zwraca info odnoscie ostatnio zamknietego kontenera
-`docker ps -l`  
+docker ps -l zwraca info odnoscie ostatnio zamknietego kontenera  
+`docker ps -l`   
+``` 
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
 2ab9b4e4a17c        ubuntu              "bash"              2 minutes ago       Exited (0) 12 seconds ago                       romantic_archimedes
-
-Tworzenie imiga z contenera:
+```
+Tworzenie imiga z contenera:  
 `docker commit 2ab9b4e4a17c`  
-sha256:13d1c1c2ee21896505cce4298bc956d055be3aff1f98658e546aa36e35ab6d44
-tagujemy i nadajemy nazwe:
+sha256:13d1c1c2ee21896505cce4298bc956d055be3aff1f98658e546aa36e35ab6d44  
+tagujemy i nadajemy nazwe:  
 `docker tag 13d1c1c2ee21896505cce4298bc956d055be3aff1f98658e546aa36e35ab6d44 custom_ubuntu_tm`  
-sprawdzamy obrazy
+sprawdzamy obrazy  
 
 `docker images`  
 ```
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE  
-<ins>custom_ubuntu_tm    latest              13d1c1c2ee21        36 seconds ago      73.9MB</ins>  
+custom_ubuntu_tm    latest              13d1c1c2ee21        36 seconds ago      73.9MB
 ubuntu              20.04               1d622ef86b13        2 weeks ago         73.9MB  
 ubuntu              latest              1d622ef86b13        2 weeks ago         73.9MB  
 ubuntu              18.04               c3c304cb4f22        2 weeks ago         64.2MB  
