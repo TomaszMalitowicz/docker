@@ -926,6 +926,20 @@ nie uzywane wolumeny mozna usunac poleceniem:
 
 
 
+#### Przylady prostych kontenerów.
+instalowanie kontenera dockerowego z wordpressem i dedykowana baza mysql
+`docker run --name mysql-db -e MYSQL_ROOT_PASSWORD=mysql -d mysql:5.7.22`  
+
+polecenie do stałego monitorowania kontenerów: dodajemy polecenie watch do standardowego polecenie wyświetlającego kontenery:
+`watch docker container ls -a`  
+
+uruchimienie kontenera z wordpressem --name: nazwa kontenera --link: łączy z innym kontenerm tutaj akurat baza danych. -p: export portów na zewnątrz -d w tle wordpress:latest obraz tutaj pobierze najnowszy:
+`docker run -d --name wordpress --link mysql-db:mysql -p 80:80 wordpress:latest`  
+
+dodajemy phpmyadmin do zestawu wordpress i mysql.
+`docker run -d --name phpmyadmin --link mysql-db:mysql -p 8080:80 -e PMA_HOST=mysql-db phpmyadmin/phpmyadmin`  
+
+
 #### Dockerfile
 Dockerfile - jest to plik na podstawie ktrego mozemy zbudowac bardzo spersonalizowany image dla kontenera.
 tworzymy dockerfile
@@ -1046,3 +1060,86 @@ uid=1000(dockerman) gid=1000(dockerman) groups=1000(dockerman)
 ENV -  pozwala ustawic zmienne srodowiskowe widoczne w kontenerze.
 EXPOSE - pozwala wyeksponowac port ktory dziala w dockerze i przypisanie go do portu na glownej maszynie.
 CMD - polecenie cmd pozwala na uruchomienie polecenia w czasie budowy kontenera.
+
+
+przyklad dockerfile'a z uzyciem zmiench srodowiskowych wyeksponowanym portem 22 dla ssh oraz restartem usługi sshd  
+```
+FROM ubuntu:16.04
+RUN apt-get update > /dev/null && apt-get install -y openssh-server > /dev/null
+RUN mkdir /var/run/sshd
+RUN echo 'root:root' | chpasswd
+RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+ENV NTVISIBLE "in user profile"
+RUN echo "export VISIBLE=now" >> /etc/profile
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
+```
+
+
+bodwanie image'a z dockerfile:  
+`docker build -t own-ubuntu-ssh-img . `  
+
+
+jak usunać wszystkie zastopowane/nie aktywne kontenery:  
+`docker container prune`  
+
+#######################################################	 <-- This comand will clean up all unused containers,
+#!!!!!!*********docker system prune************!!!!!!!#  <-- networks, images (both dangling and unreferenced),
+#######################################################	 <-- and optionally, volumes, in one command
+
+
+#### Doceker Compose
+
+pobieramy docker compose z github'a  
+`sudo curl -L "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`  
+`sudo chmod +x /usr/local/bin/docker-compose`  
+
+`docker-compose --version`  
+tworzymy plik stack.yaml w środku konfigurujemy go w następujący sposób:  
+cat stack.yaml  
+```
+version: '3.1'
+
+services:
+
+  db:
+     image: mysql:5.7.22
+     container_name: db
+     restart: always
+     ports:
+       - 3306:3306
+     environment:
+       MYSQL_ROOT_PASSWORD: admin
+     volumes:
+       - /home/ubuntu/database:/var/lib/mysql
+
+  wordpress:
+    image: wordpress
+    container_name: www_blog
+    restart: always
+    ports:
+      - 8800:80
+    environment:
+      WORDPRESS_DB_PASSWORD: admin
+    links:
+      - "db:mysql"
+    volumes:
+      - /home/ubuntu/wp-content:/var/www/html/wp-content
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: www_db
+    restart: always
+    ports:
+      - 8801:80
+    links:
+      - "db:mysql"
+```
+
+po poprawnym skonfigurowaniu pliku i zapisaniu odpalamy komende która zbuduje nam obrazy według instrukcji:
+`docker-compose -f stack.yaml up -d`  
+
+
