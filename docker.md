@@ -1,4 +1,6 @@
-# How to docker on ubuntu.
+# How to docker.
+
+### Instalacja
 ```
 sudo apt-get install \
     apt-transport-https \
@@ -23,7 +25,11 @@ sudo add-apt-repository \
    `sudo docker run hello-world`  
    `docker run ubuntu echo test`  
 
-#### ti - terminal interactive
+dodajemy obecnego uzytkownika do grupy dockerowej.
+`sudo adduser twoj_obecny_user docker`  
+
+### Pierwsze polecenia.
+Polecenie docker run pozwal urochamiac kontenry uzycie falgi ti - terminal interactive pozwala na interakcje z kontenrerem.
 
    `docker run -ti ubuntu:14.10 echo "I'm Ubuntu"`  
    `docker run -ti centos echo "I'm Centos"`  
@@ -40,14 +46,14 @@ hello-world         latest              bf756fb1ae65        4 months ago        
 ubuntu              14.10               a8a2ba3ce1a3        4 years ago         194MB
 ```
 
-#### docker ps pokzuje tylko aktywne kontenery
+docker ps pokzuje tylko aktywne kontenery
 
  `docker ps`  
 ```
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS 
               NAMES
 ```
-#### docker ps -a pokazuje wszystkie zbudowane kontenery lacznie z nie aktywnymi
+docker ps -a pokazuje wszystkie zbudowane kontenery lacznie z nie aktywnymi
 
 `docker ps -a`  
 ```
@@ -66,7 +72,7 @@ fed605d46f1c        ubuntu:18.04        "echo 'I'm Ubuntu 18…"   4 minutes ago
 `docker start c4fb5b2ef5f9`  
 `docker exec -ti c4fb5b2ef5f9 bash`  
 
-#### wyjscie z takiego kontenera nic nie zmienia by zakoczyc prace konternera trzeba wejsc do niego przy pomoc komendy attache - podlaczamy sie do aktywnego procesu w tym przykladzie bash.
+wyjscie z takiego kontenera nic nie zmienia by zakoczyc prace konternera trzeba wejsc do niego przy pomoc komendy attache - podlaczamy sie do aktywnego procesu w tym przykladzie bash.
 
 `docker container ls`  
 ```
@@ -77,7 +83,7 @@ c4fb5b2ef5f9        ubuntu              "bash"              19 minutes ago      
 root@c4fb5b2ef5f9:/# exit
 exit
 
-#### po wyjsciu kontener konczy swoja prace.
+po wyjsciu kontener konczy swoja prace.
 
 `docker container ls`  
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
@@ -92,16 +98,16 @@ exit
 `docker start ubuntu_test01`  
 `docker exec -ti ubuntu_test01 bash`  
 
-#### stworzony plik dalej istnieje
+stworzony plik dalej istnieje
 
 root@f9dc4b6807e0:/# ls
 bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  plik.txt  proc  root  run  sbin  srv  sys  tmp  usr  var
 
-#### zamkniecie polaczenie exitem nie zamyka kontener bo bylem polaczony poprzez exec to zupelne nowy proces
+zamkniecie polaczenie exitem nie zamyka kontener bo bylem polaczony poprzez exec to zupelne nowy proces
 
 `docker stop ubuntu_test01`  
 
-#### zeby polaczyc sie do glownego procesu nalezy przy starcie uzyc flagi -ia = interactive attach
+zeby polaczyc sie do glownego procesu nalezy przy starcie uzyc flagi -ia = interactive attach
 
 `docker start -ia ubuntu_test01`  
 flaga restart  
@@ -114,7 +120,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 `docker stop ciagle_na_chodzie`  
 `docker container ls`  
 
-#### usuwanie kontenerow
+### usuwanie kontenerow
 
 jezeli kontener jest uruchomiony zatrzymujemy go poleceniem  
 `docker stop nazwa/id_kontenera`  
@@ -127,7 +133,7 @@ wyswietlanie wszytkich kontenerow up i exited
 usuwanie z zagniezdzeniem polecenia  
 `docker container rm $(docker container ls -aq)`  
 
-#### tworzenie obrazu z kontenera
+### tworzenie obrazu z kontenera
 
 `docker run -ti ubuntu bash`  
 root@2ab9b4e4a17c:/# touch image_info.txt
@@ -170,7 +176,7 @@ obraz mozna zobic szybciej w jendym poleceniu.
 `docker commit e79d3758717e custom_ubuntu_tm_2`  
 
 
-#### Docker search
+### Docker search
 
 `docker search ubuntu`  
 NAME                                                      DESCRIPTION                                     STARS               OFFICIAL            AUTOMATED
@@ -185,7 +191,7 @@ haproxy                              HAProxy - The Reliable, High Performance TC
 steveltn/https-portal                A fully automated HTTPS server powered by Ng…   91                                      [OK]
 
 
-#### Docker pull
+### Docker pull
 
 `docker pull fedora:latest`  
 
@@ -208,13 +214,13 @@ Digest: sha256:c9e4386ebcdf0583204e7a54d7a827577b5ff98b932c498e9ee603f7050db1c1
 Status: Downloaded newer image for httpd:latest
 docker.io/library/httpd:latest
 
-#### Docker inspect
+### Docker inspect
 docker inspect nazwa_obrazu - zwraca informacje na temat obrazu
 
 `docker inspect httpd`  
 
 
-#### Docker tag
+### Docker tag
 docker tag pozwala zmienic nazwe obrazu.
 docker tag nazwa_obrazu nowa_nazwa_obrazu:nr_versji
 
@@ -227,11 +233,11 @@ httpd               latest              b2c2ab6dcf2e        2 weeks ago         
 `docker tag custom_ubuntu_tm custom_ubuntu:20.04` 
 
 
-#### docker push
+### docker push
 
 
 
-#### docker rmi
+### docker rmi
 
 `docker images`  
 
@@ -258,7 +264,7 @@ i mamy puste repo obrazow
 
 
 
-#### Procesy w kontenerze
+### Procesy w kontenerze
 
 `docker run --rm centos echo "Jestem przez chwile"`  
 
@@ -280,7 +286,7 @@ aby przejsc spowrotem do tla nalezy uzyc skrotu klawiszowego ctrl+p, ctrl+q
 
 
 
-#### docker inspect
+### docker inspect
 
 `docker inspect donald_trump`  
 `docker start donald_trump`  
@@ -293,7 +299,7 @@ mozemy porownac informacje wylaczonego i wlaczonego kontenera.
 `docker inspect WebServer1`  
 
 
-#### zarzadzanie kontenerami
+### zarzadzanie kontenerami
 
 `docker run -ti --name kontener2 ubuntu /bin/bash`  
 
@@ -325,7 +331,7 @@ zabijamy kontener z nieskonczona petla:
 `docker container kill ffbdd3b2290a`  
 
 
-#### Siec
+### Siec
 - Kontenery moga sie komunikowac miedzy soba.  
 - Kontener moze sie komunikowac sam ze soba poprzez siec.
 - Kontener moze sie komunikowac tez z hostem.
@@ -383,7 +389,7 @@ laczymy sie z naszej maszyny poprzez ssh i utowrzonego user do kontenera.
 ssh user@172.17.0.2
 
 
-##### Porty   
+#### Porty   
 `docker run -d -ti --name WebServer4 httpd`  
 
 `docker ps`
@@ -421,7 +427,7 @@ cb5607dce3d4        httpd               "httpd-foreground"   32 minutes ago     
 sprawdzamy czy dziala przy uzyciu elinksa
 `elinks http://localhost:8080`  
 
-##### Linkowanie kontenerow i flaga --net
+#### Linkowanie kontenerow i flaga --net
 stopujemy poprzednie kontenery:
 `docker container stop $(docker container ls)`  
 usuwamy wszystkie nieaktywne kontenery:
@@ -468,7 +474,7 @@ ff02::2	ip6-allrouters
 172.17.0.3	5ceab7987928
 ```
 
-##### Tworzenie wlasnej sieci
+#### Tworzenie wlasnej sieci
 dzieki wlasnej siecie kontenery widza sie wzajemnie nie trzeba ich linkowac.
 
 tworzymy siec:  
@@ -492,7 +498,7 @@ root@60f244603df1:/# nc -lp 2345
 HALO
 ```
 
-##### Polecenia sieciowe docker'a  
+#### Polecenia sieciowe docker'a  
 wyswietlenie dostepnych sieci dockerowych  
 `docker network ls`  
 ```
@@ -627,7 +633,7 @@ zostaly dolaczone do sieci.
 ]
 ```
 
-##### Tworzenie wlasnej podsieci dockerowej.
+#### Tworzenie wlasnej podsieci dockerowej.
 
 `docker network create --subnet 10.10.0.0/24 --gateway 10.10.0.1 custom_net`  
 
@@ -675,7 +681,7 @@ c62f77001584        siec                bridge              local
 ]
 ```
 
-##### Usuwanie sieci dockerowej
+#### Usuwanie sieci dockerowej
 `docker network rm custom_net`  
 
 `docker network ls`  
@@ -692,7 +698,7 @@ sprzatamy nasze maszyny:
 `docker container rm $(docker container ls -aq)`  
 
 
-##### Tworzenie sieci dockerowej ze statycznymi adresami ip dla kontenerow
+#### Tworzenie sieci dockerowej ze statycznymi adresami ip dla kontenerow
 
 tworzymy nowa siec dockerowa:
 `docker network create --subnet 10.10.0.0/16 --gateway 10.10.0.1 --ip-range=10.10.5.0/24 --driver=bridge custome_network_bridge_5` 
@@ -754,7 +760,7 @@ docker inspect silly_lamport| grep IPAddr
 
 ```
 
-#### Wolumeny danych.
+### Wolumeny danych.
 tworzymy nowy kontener i mapujemy obenca siezke na glownej maszynie na folder mapped w kontenerze
 `docker run -ti -d --name NewContainer1 -v "$PWD":/mapped ubuntu /bin/bash`  
 
@@ -774,7 +780,7 @@ Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos  examp
 
 jak widac katalog sie podmontowal :)
 
-##### wolumeny ephemeral
+#### wolumeny ephemeral
 
 `docker run -ti --name V1 -v /sharedata ubuntu bash`  
 `touch ./sharedata/data.txt && echo "very important file." >> ./sharedata/data.txt`  
@@ -843,7 +849,7 @@ Nie stworzymy juz nowego kontenera na bazie volumenu z V1.
 Kontenery ktore wspoldziela zasob beda go posiadaly do momentu wylaczenia.
 Po wylaczeniu nie beda mialy skad juz zaciaganc danych.
 
-##### wolumeny persistent
+#### wolumeny persistent
  na przykladzie serwera www apache.
 
  na maszynie glownej tworzymy katalgo www, w srodku towrzymy dwa pliki html.index oraz newHtml.index wypelniamy roznymi danymi.
@@ -858,7 +864,7 @@ Po wylaczeniu nie beda mialy skad juz zaciaganc danych.
 
 
 
- ##### docker cp
+ #### docker cp
 
 `docker run -itd --name copyServer ubuntu bash`  
 tworzymy plik do kopiowania.
@@ -879,7 +885,7 @@ kopiowanie z kontenera do maszyny glownej.
 ` docker cp copyServer:/plik.txt ./file_important.txt`  
 
 
-##### docker volume
+#### docker volume
 
 `docker volume create vol-01`  
 
@@ -926,7 +932,7 @@ nie uzywane wolumeny mozna usunac poleceniem:
 
 
 
-#### Przylady prostych kontenerów.
+### Przylady prostych kontenerów.
 instalowanie kontenera dockerowego z wordpressem i dedykowana baza mysql
 `docker run --name mysql-db -e MYSQL_ROOT_PASSWORD=mysql -d mysql:5.7.22`  
 
@@ -940,7 +946,7 @@ dodajemy phpmyadmin do zestawu wordpress i mysql.
 `docker run -d --name phpmyadmin --link mysql-db:mysql -p 8080:80 -e PMA_HOST=mysql-db phpmyadmin/phpmyadmin`  
 
 
-#### Dockerfile
+### Dockerfile
 Dockerfile - jest to plik na podstawie ktrego mozemy zbudowac bardzo spersonalizowany image dla kontenera.
 tworzymy dockerfile
 `touch dockerfile`  
@@ -1024,7 +1030,7 @@ ubuntu                    latest              1d622ef86b13        3 weeks ago   
 
 jak widac rozmiar zmniejszyl sie o 1 MB :)
 
-##### dockerfile user
+#### dockerfile user
 
 dodajemy do docker file linie user:
 ```
@@ -1087,11 +1093,11 @@ jak usunać wszystkie zastopowane/nie aktywne kontenery:
 `docker container prune`  
 
 #######################################################	 <-- This comand will clean up all unused containers,
-#!!!!!!*********docker system prune************!!!!!!!#  <-- networks, images (both dangling and unreferenced),
+#!!!!!!****** **docker system prune** *********!!!!!!!#  <-- networks, images (both dangling and unreferenced),
 #######################################################	 <-- and optionally, volumes, in one command
 
 
-#### Doceker Compose
+### Doceker Compose
 
 pobieramy docker compose z github'a  
 `sudo curl -L "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`  
@@ -1139,7 +1145,7 @@ services:
       - "db:mysql"
 ```
 
-po poprawnym skonfigurowaniu pliku i zapisaniu odpalamy komende która zbuduje nam obrazy według instrukcji:
+po poprawnym skonfigurowaniu pliku i zapisaniu odpalamy komende która zbuduje nam obrazy według instrukcji:  
 `docker-compose -f stack.yaml up -d`  
 
 
