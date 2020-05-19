@@ -1,7 +1,7 @@
 # How to docker.
 
 ### Instalacja
-```
+```bash
 sudo apt-get install \
     apt-transport-https \
     ca-certificates \
@@ -12,7 +12,7 @@ sudo apt-get install \
 
 `curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -`  
 `sudo apt-key fingerprint 0EBFCD88`  
-```
+```bash
 sudo add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
    $(lsb_release -cs) \
@@ -25,7 +25,7 @@ sudo add-apt-repository \
    `sudo docker run hello-world`  
    `docker run ubuntu echo test`  
 
-dodajemy obecnego uzytkownika do grupy dockerowej.
+dodajemy obecnego uzytkownika do grupy dockerowej.  
 `sudo adduser twoj_obecny_user docker`  
 
 ### Pierwsze polecenia.
@@ -50,8 +50,7 @@ docker ps pokzuje tylko aktywne kontenery
 
  `docker ps`  
 ```
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS 
-              NAMES
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 ```
 docker ps -a pokazuje wszystkie zbudowane kontenery lacznie z nie aktywnymi
 
@@ -155,6 +154,7 @@ tagujemy i nadajemy nazwe:
 sprawdzamy obrazy
 
 `docker images`  
+```
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE  
 <ins>custom_ubuntu_tm    latest              13d1c1c2ee21        36 seconds ago      73.9MB</ins>  
 ubuntu              20.04               1d622ef86b13        2 weeks ago         73.9MB  
@@ -163,33 +163,35 @@ ubuntu              18.04               c3c304cb4f22        2 weeks ago         
 centos              latest              470671670cac        3 months ago        237MB  
 hello-world         latest              bf756fb1ae65        4 months ago        13.3kB  
 ubuntu              14.10               a8a2ba3ce1a3        4 years ago         194MB  
-
+```
 
 `docker run -ti custom_ubuntu_tm bash`  
 docker container ls -a
+```
 CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS                      PORTS               NAMES
 e79d3758717e        custom_ubuntu_tm    "bash"              About a minute ago   Exited (0) 9 seconds ago                        sleepy_tu
+```
 
-
-
-obraz mozna zobic szybciej w jendym poleceniu.
+obraz mozna zobic szybciej w jendym poleceniu.  
 `docker commit e79d3758717e custom_ubuntu_tm_2`  
 
 
 ### Docker search
 
 `docker search ubuntu`  
+```
 NAME                                                      DESCRIPTION                                     STARS               OFFICIAL            AUTOMATED
 ubuntu                                                    Ubuntu is a Debian-based Linux operating sys…   10877               [OK]                
 dorowu/ubuntu-desktop-lxde-vnc                            Docker image to provide HTML5 VNC interface …   422                                     [OK]
-
+```
 
 `docker search http`  
+```
 NAME                                 DESCRIPTION                                     STARS               OFFICIAL            AUTOMATED
 httpd                                The Apache HTTP Server Project                  2999                [OK]                
 haproxy                              HAProxy - The Reliable, High Performance TCP…   1417                [OK]                
 steveltn/https-portal                A fully automated HTTPS server powered by Ng…   91                                      [OK]
-
+```
 
 ### Docker pull
 
@@ -450,20 +452,20 @@ uruchamiamy netcata z nasuchiwaniem na konkretny port:
 na serwerze clienckim uruchamiamy netcata z opcja komunikacji do servera1 na porcie 3456
 `nc server1 3456`  
 Mozna wysylac proste komunikatu z serwera client do server1.
-```
+```bash
 root@5ceab7987928:/# nc server1 3456
 Elo
 Tutaj Donald Trump
 ```
 
-```
+```bash
 root@95d2598052fb:/# nc -lp 3456
 Elo
 Tutaj Donald Trump
 ```
 
-```
- cat /etc/hosts 
+```bash
+cat /etc/hosts 
 127.0.0.1	localhost
 ::1	localhost ip6-localhost ip6-loopback
 fe00::0	ip6-localnet
@@ -489,11 +491,11 @@ uruchamiamy nowy nasluchiwanie i przesylanie jak wczesniej.
 weryfikujemy czy dziala:
 
 
-```
+```bash
 root@b9cbdaf2d3a7:/# nc server2 2345
 HALO
 ```
-```
+```bash
 root@60f244603df1:/# nc -lp 2345
 HALO
 ```
@@ -510,7 +512,7 @@ c62f77001584        siec                bridge              local
 ```
 
 `docker network inspect siec`  
-```
+```json
 [
     {
         "Name": "siec",
@@ -564,7 +566,7 @@ utworzmy kolejne kontenry z podlaczenie do sieci: siec
 `for count_id in {1..5}; do docker run -ti -d --net siec ubuntu /bin/bash; done`  
 zostaly dolaczone do sieci.  
 `docker network inspect siec`  
-```
+```json
 [
     {
         "Name": "siec",
@@ -648,7 +650,7 @@ c62f77001584        siec                bridge              local
 ```
 
 `docker network inspect custom_net`  
-```
+```json
 [
     {
         "Name": "custom_net",
@@ -702,7 +704,7 @@ sprzatamy nasze maszyny:
 
 tworzymy nowa siec dockerowa:
 `docker network create --subnet 10.10.0.0/16 --gateway 10.10.0.1 --ip-range=10.10.5.0/24 --driver=bridge custome_network_bridge_5` 
-```
+```bash
 docker network ls
 NETWORK ID          NAME                       DRIVER              SCOPE
 06135934ba19        bridge                     bridge              local
@@ -711,7 +713,7 @@ c973ef41f7bb        custome_network_bridge_5   bridge              local
 cf8957df087b        none                       null                local
 ```
 utworzyl sie rowniez interfejs sieciowy na maszynie glownej.
-```
+```bash
 ifconfig -a
 br-c973ef41f7bb: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
         inet 10.10.0.1  netmask 255.255.0.0  broadcast 10.10.255.255
@@ -724,7 +726,7 @@ br-c973ef41f7bb: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
 tworzymy kontener i podlaczamy go do sieci:  
 `docker run -ti -d --network=custome_network_bridge_5 ubuntu bash`  
 
-```
+```bash
 docker container ls
 CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
 62744c64606c        ubuntu              "bash"              About a minute ago   Up About a minute                       festive_dhawan
@@ -736,13 +738,13 @@ docker inspect festive_dhawan| grep IPAddr
 tworzymy nowy kontener:  
 `docker run -ti -d --network=custome_network_bridge_5 ubuntu bash`  
 
-```
+```bash
 docker container ls
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 8e51440946d8        ubuntu              "bash"              7 seconds ago       Up 5 seconds                            brave_saha
 62744c64606c        ubuntu              "bash"              2 minutes ago       Up 2 minutes                            festive_dhawan
 ```
-```
+```bash
 docker inspect brave_saha| grep IPAddr
             "SecondaryIPAddresses": null,
             "IPAddress": "",
@@ -752,7 +754,7 @@ Jak widac adresy ip sa przydzielana zgodnie z polityka sieci.
 
 mozna nadawac adresy ip przy tworzeniu kontenera fla --ip:  
 `docker run -ti -d --network=custome_network_bridge_5 --ip 10.10.3.1  ubuntu bash`  
-```
+```bash
 docker inspect silly_lamport| grep IPAddr
             "SecondaryIPAddresses": null,
             "IPAddress": "",
@@ -761,16 +763,16 @@ docker inspect silly_lamport| grep IPAddr
 ```
 
 ### Wolumeny danych.
-tworzymy nowy kontener i mapujemy obenca siezke na glownej maszynie na folder mapped w kontenerze
+tworzymy nowy kontener i mapujemy obenca siezke na glownej maszynie na folder mapped w kontenerze  
 `docker run -ti -d --name NewContainer1 -v "$PWD":/mapped ubuntu /bin/bash`  
 
-```
+```bash
 docker container ls
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 119c2504a0cd        ubuntu              "/bin/bash"         10 seconds ago      Up 9 seconds                            NewContainer1
 ```
-```
-docker attach NewContainer1 
+`docker attach NewContainer1`  
+```bash
 root@119c2504a0cd:/# ls
 bin  boot  dev  etc  home  lib  lib32  lib64  libx32  mapped  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
 root@119c2504a0cd:/# ls mapped/
@@ -791,13 +793,13 @@ jak widac katalog sie podmontowal :)
 
  `docker run -ti --name V2 --volumes-from V1 ubuntu bash`  
 
-```
+```bash
 root@969cb8656ba7:/# cat sharedata/data.txt 
 very important file.
 root@969cb8656ba7:/# echo "Dont delete it" >> sharedata/data.txt 
 ```
 Sprawdzamy czy widac dodany tekst na pierwszym konenerze po czym zamykamy go.
-```
+```bash
 docker attach V1 
 root@e955e4e08b2a:/# cat sharedata/data.txt 
 very important file.
@@ -810,7 +812,7 @@ tworzymy klejny kontener ktory ma korzystac z volumenu kontenera V1
 
 `docker run -ti --name V3 --volumes-from V1 ubuntu bash`  
 
-```
+```bash
 oot@bf5f2a926f9e:/# ls
 bin  boot  dev  etc  home  lib  lib32  lib64  libx32  media  mnt  opt  proc  root  run  sbin  sharedata  srv  sys  tmp  usr  var
 root@bf5f2a926f9e:/# echo "ok.." >> sharedata/data.txt 
@@ -822,7 +824,7 @@ root@bf5f2a926f9e:/# exit
 exit
 ```
 wychodzimy z niego i podlaczamy sie do V2
-```
+```bash
 docker attach V2
 root@969cb8656ba7:/# cat sharedata/data.txt 
 very important file.
@@ -835,7 +837,7 @@ Jak widac nasze dane pomimo wylaczenia V1 dalej sa wspoldzielone. a jakby go usu
 
 
 laczymy sie znowy do V2
-```
+```bash
 docker attach V2
 root@969cb8656ba7:/# cat sharedata/data.txt 
 very important file.
@@ -850,11 +852,9 @@ Kontenery ktore wspoldziela zasob beda go posiadaly do momentu wylaczenia.
 Po wylaczeniu nie beda mialy skad juz zaciaganc danych.
 
 #### wolumeny persistent
- na przykladzie serwera www apache.
-
- na maszynie glownej tworzymy katalgo www, w srodku towrzymy dwa pliki html.index oraz newHtml.index wypelniamy roznymi danymi.
-
- tworzymy kontener z obrazu httpd z wyeksponowanym portem 80 oraz podmontowanym volumenem z maszyny golownej.
+ Na przykladzie serwera www apache.
+ Na maszynie glownej tworzymy katalgo www, w srodku towrzymy dwa pliki html.index oraz newHtml.index wypelniamy roznymi danymi.
+ Tworzymy kontener z obrazu httpd z wyeksponowanym portem 80 oraz podmontowanym volumenem z maszyny głównej.  
 
  `docker run -tid --name WebServer00 -p 8080:80 -v "$PWD":/usr/local/apache2/htdocs/ httpd`  
 
@@ -867,10 +867,10 @@ Po wylaczeniu nie beda mialy skad juz zaciaganc danych.
  #### docker cp
 
 `docker run -itd --name copyServer ubuntu bash`  
-tworzymy plik do kopiowania.
+tworzymy plik do kopiowania.  
 `mkdir testData && touch ./testData/importantFile.txt && echo "very important file dont delete it." >> ./testData/importantFile.txt`  
 
-jak wykonac kopie do kontenera. docker cp sciezka_nazwa_pliku nazwa/id kontenera:sciezka_nazwa_nowego_pliku
+jak wykonac kopie do kontenera. docker cp sciezka_nazwa_pliku nazwa/id kontenera:sciezka_nazwa_nowego_pliku  
 `docker cp ./testData/importantFile.txt  copyServer:/plik.txt`  
 
 ```
@@ -890,7 +890,7 @@ kopiowanie z kontenera do maszyny glownej.
 `docker volume create vol-01`  
 
 `cd /var/lib/docker/volumes/`  
-```
+```bash
 /var/lib/docker/volumes# ll
 total 40
 drwx------  4 root root  4096 maj 14 18:40 ./
@@ -901,18 +901,18 @@ drwxr-xr-x  3 root root  4096 maj 14 18:40 vol-01/
 ```
 
 `docker run -ti -d --name TestVolumeContainer --mount source=vol-01,target=/dane ubuntu bash`  
-w kontnerze
+w kontnerze  
 `touch /dane.noweDane.txt`  
 ```
 root@91e063d4b81e:/dane# ls
 noweDane.txt
 ```
 wrzucamy kontener w tlo.
-wyswietlamy zawartosc volumenu na dysku maszyny glownej.
+wyswietlamy zawartosc volumenu na dysku maszyny glownej.  
 `sudo ls /var/lib/docker/volumes/vol-01/_data`  
 noweDane.txt
 
-```
+```json
 docker volume inspect vol-01
 [
     {
@@ -933,27 +933,28 @@ nie uzywane wolumeny mozna usunac poleceniem:
 
 
 ### Przylady prostych kontenerów.
-instalowanie kontenera dockerowego z wordpressem i dedykowana baza mysql
+instalowanie kontenera dockerowego z wordpressem i dedykowana baza mysql  
 `docker run --name mysql-db -e MYSQL_ROOT_PASSWORD=mysql -d mysql:5.7.22`  
 
-polecenie do stałego monitorowania kontenerów: dodajemy polecenie watch do standardowego polecenie wyświetlającego kontenery:
+polecenie do stałego monitorowania kontenerów: dodajemy polecenie watch do standardowego polecenie wyświetlającego kontenery:  
 `watch docker container ls -a`  
 
-uruchimienie kontenera z wordpressem --name: nazwa kontenera --link: łączy z innym kontenerm tutaj akurat baza danych. -p: export portów na zewnątrz -d w tle wordpress:latest obraz tutaj pobierze najnowszy:
+uruchimienie kontenera z wordpressem --name: nazwa kontenera --link: łączy z innym kontenerm tutaj akurat baza danych. -p: export portów na zewnątrz -d w tle wordpress:latest obraz tutaj pobierze najnowszy:  
 `docker run -d --name wordpress --link mysql-db:mysql -p 80:80 wordpress:latest`  
 
-dodajemy phpmyadmin do zestawu wordpress i mysql.
+dodajemy phpmyadmin do zestawu wordpress i mysql.  
 `docker run -d --name phpmyadmin --link mysql-db:mysql -p 8080:80 -e PMA_HOST=mysql-db phpmyadmin/phpmyadmin`  
 
 
 ### Dockerfile
-Dockerfile - jest to plik na podstawie ktrego mozemy zbudowac bardzo spersonalizowany image dla kontenera.
-tworzymy dockerfile
+Dockerfile - jest to plik na podstawie ktrego mozemy zbudowac bardzo spersonalizowany image dla kontenera. 
+
+Tworzymy dockerfile.  
 `touch dockerfile`  
 
 
 wrzucamy do srodka:
-```
+```dockerfile
 # Dockerfile
 FROM ubuntu:latest
 MAINTAINER Your Name <your_mail@gmail.com>
@@ -980,7 +981,7 @@ Successfully tagged imagefromdockerfile:latest
 ```
 
 obraz wybudowany i gotowy do uzytku:
-```
+```bash
 docker image ls
 REPOSITORY            TAG                 IMAGE ID            CREATED              SIZE
 imagefromdockerfile   latest              ccca2d65c567        About a minute ago   73.9MB
@@ -990,7 +991,7 @@ ubuntu                latest              1d622ef86b13        3 weeks ago       
 
 ok dodajmy do Dockerfile'a polecenie RUN - pozwala on doinstalwoywac zmiany w obrazie.
 dodajemy update i insalacje vima.
-```
+```dockerfile
 # Dockerfile
 FROM ubuntu:latest
 MAINTAINER Your Name <your_mail@gmail.com>
@@ -1033,7 +1034,7 @@ jak widac rozmiar zmniejszyl sie o 1 MB :)
 #### dockerfile user
 
 dodajemy do docker file linie user:
-```
+```dockerfile
 # Dockerfile
 FROM ubuntu:latest
 MAINTAINER Your Name <your_mail@gmail.com>
@@ -1052,7 +1053,7 @@ uruchamiamy go:
 
 podlaczmy sie:
 `docker attach FromDockerFileDockerman`
-```
+```bash
 dockerman@2a1a93a86212:/$ pwd
 /
 dockerman@2a1a93a86212:/$ cd 
@@ -1063,13 +1064,12 @@ uid=1000(dockerman) gid=1000(dockerman) groups=1000(dockerman)
 
 ```
 
-ENV -  pozwala ustawic zmienne srodowiskowe widoczne w kontenerze.
-EXPOSE - pozwala wyeksponowac port ktory dziala w dockerze i przypisanie go do portu na glownej maszynie.
-CMD - polecenie cmd pozwala na uruchomienie polecenia w czasie budowy kontenera.
+ENV -  pozwala ustawic zmienne srodowiskowe widoczne w kontenerze.  
+EXPOSE - pozwala wyeksponowac port ktory dziala w dockerze i przypisanie go do portu na glownej maszynie.  
+CMD - polecenie cmd pozwala na uruchomienie polecenia w czasie budowy kontenera.  
 
-
-przyklad dockerfile'a z uzyciem zmiench srodowiskowych wyeksponowanym portem 22 dla ssh oraz restartem usługi sshd  
-```
+Przyklad dockerfile'a z uzyciem zmiench srodowiskowych wyeksponowanym portem 22 dla ssh oraz restartem usługi sshd  
+```dockerfile
 FROM ubuntu:16.04
 RUN apt-get update > /dev/null && apt-get install -y openssh-server > /dev/null
 RUN mkdir /var/run/sshd
@@ -1091,11 +1091,11 @@ bodwanie image'a z dockerfile:
 
 jak usunać wszystkie zastopowane/nie aktywne kontenery:  
 `docker container prune`  
-
+```
 #######################################################	 <-- This comand will clean up all unused containers,
 #!!!!!!****** **docker system prune** *********!!!!!!!#  <-- networks, images (both dangling and unreferenced),
 #######################################################	 <-- and optionally, volumes, in one command
-
+```
 
 ### Doceker Compose
 
@@ -1106,7 +1106,7 @@ pobieramy docker compose z github'a
 `docker-compose --version`  
 tworzymy plik stack.yaml w środku konfigurujemy go w następujący sposób:  
 cat stack.yaml  
-```
+```yaml
 version: '3.1'
 
 services:
